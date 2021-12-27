@@ -77,7 +77,7 @@ network_G:
 
 #### path
 path:
-  pretrain_model_G: ../pretrained_models/RRDB_CelebA_8X.pth
+  pretrain_model_G: ./models/weights/SRFLOW_RRDB.pth
   strict_load: true
   resume_state: auto
 
@@ -96,12 +96,3 @@ train:
   niter: 200000
   val_freq: 40000
 
-#### validation settings
-val:
-  heats: [ 0.0, 0.5, 0.75, 1.0 ]
-  n_sample: 3
-
-#### logger
-logger:
-  print_freq: 100
-  save_checkpoint_freq: !!float 1e3
