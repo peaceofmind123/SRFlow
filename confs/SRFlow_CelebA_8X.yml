@@ -47,7 +47,7 @@ datasets:
 
 #### Test Settings
 dataroot_GT: ./data/validation/gt
-dataroot_LR: ../data/validation/lr
+dataroot_LR: ./data/validation/lr
 model_path: ./models/weights/SRFlow.pth
 heat: 0.9 # This is the standard deviation of the latent vectors
 
