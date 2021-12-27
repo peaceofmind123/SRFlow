@@ -48,7 +48,7 @@ datasets:
 #### Test Settings
 dataroot_GT: ../datasets/celebA-validation-gt
 dataroot_LR: ../datasets/celebA-validation-x8
-model_path: ../pretrained_models/SRFlow_CelebA_8X.pth
+model_path: ./models/weights/SRFlow.pth
 heat: 0.9 # This is the standard deviation of the latent vectors
 
 #### network structures
