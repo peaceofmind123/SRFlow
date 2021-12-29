@@ -2,7 +2,6 @@ import natsort, glob, pickle, torch
 import numpy as np
 from IPython.core.display import display
 from PIL import Image
-from collections import OrderedDict
 import options.options as option
 from models import create_model
 from utils.util import opt_get
@@ -81,6 +80,14 @@ def imwrite(path, img):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     cv2.imwrite(path, img[:, :, [2, 1, 0]])
 
+
+def format_measurements(meas):
+    s_out = []
+    for k, v in meas.items():
+        v = f"{v:0.2f}" if isinstance(v, float) else v
+        s_out.append(f"{k}: {v}")
+    str_out = ", ".join(s_out)
+    return str_out
 
 def imCropCenter(img, size):
     h, w, c = img.shape

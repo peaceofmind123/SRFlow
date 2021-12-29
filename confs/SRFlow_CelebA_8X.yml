@@ -48,6 +48,7 @@ datasets:
 #### Test Settings
 dataroot_GT: ./data/validation/gt
 dataroot_LR: ./data/validation/lr
+dataroot_SR: ./data/validation/sr
 model_path: ./models/weights/SRFlow.pth
 heat: 0.9 # This is the standard deviation of the latent vectors
 
@@ -96,3 +97,6 @@ train:
   niter: 200000
   val_freq: 40000
 
+val:
+  heats: [ 0.0, 0.5, 0.75, 1.0 ]
+  n_sample: 3
