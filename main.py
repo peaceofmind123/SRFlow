@@ -45,32 +45,9 @@ def main():
     this_dir = os.path.dirname(os.path.realpath(__file__))
     test_lr_path = os.path.join(this_dir,lr_dir,'000001.jpg')
     test_gt_path = os.path.join(this_dir, gt_dir, '000001.jpg')
-    output_path = os.path.join(this_dir,sr_dir, '000001.jpg')
-    lr = imread(test_lr_path)
-    gt = imread(test_gt_path)
+    output_path = os.path.join(this_dir,sr_dir, '000002.jpg')
+    superResolve(model,opt,conf,test_lr_path,test_gt_path,output_path,None,measure,2)
 
-    scale = opt['scale']
-    pad_factor = 2
-    h, w, c = lr.shape
-    lq_orig = lr.copy()
-    lr = impad(lr, bottom=int(np.ceil(h / pad_factor) * pad_factor - h),
-               right=int(np.ceil(w / pad_factor) * pad_factor - w))
-
-    lr_t = t(lr) # torch tensor
-    heat = opt['heat']
-    sr_t = model.get_sr(lq=lr_t, heat=heat)
-
-    sr = rgb(torch.clamp(sr_t, 0, 1))
-    sr = sr[:h * scale, :w * scale]
-    meas = OrderedDict(conf=conf, heat=heat, name=0)
-    meas['PSNR'], meas['SSIM'], meas['LPIPS'] = measure.measure(sr, gt)
-    lr_reconstruct_rgb = imresize(sr, 1 / opt['scale'])
-    meas['LRC PSNR'] = psnr(lq_orig, lr_reconstruct_rgb)
-
-
-    str_out = format_measurements(meas)
-    imwrite(output_path, sr)
-    print(str_out)
 
 if __name__ == '__main__':
     main()
