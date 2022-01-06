@@ -8,6 +8,33 @@ test_lr_path = './data/validation/lr/001.png'
 test_gt_path = './data/validation/gt/001.png'
 
 
+def superResolve(model, opt, conf, lr_path, gt_path, sr_path, heat, measure, pad_factor=2):
+    lr = imread(lr_path)
+    gt = imread(gt_path)
+
+    scale = opt['scale']
+    h, w, c = lr.shape
+    lq_orig = lr.copy()
+    lr = impad(lr, bottom=int(np.ceil(h / pad_factor) * pad_factor - h),
+               right=int(np.ceil(w / pad_factor) * pad_factor - w))
+
+    lr_t = t(lr)  # torch tensor
+    if heat is None:
+        heat = opt['heat']
+
+    sr_t = model.get_sr(lq=lr_t, heat=heat)
+
+    sr = rgb(torch.clamp(sr_t, 0, 1))
+    sr = sr[:h * scale, :w * scale]
+    meas = OrderedDict(conf=conf, heat=heat, name=0)
+    meas['PSNR'], meas['SSIM'], meas['LPIPS'] = measure.measure(sr, gt)
+    lr_reconstruct_rgb = imresize(sr, 1 / opt['scale'])
+    meas['LRC PSNR'] = psnr(lq_orig, lr_reconstruct_rgb)
+    str_out = format_measurements(meas)
+    print(str_out)
+    if sr_path is not None:
+        imwrite(sr_path, sr)
+
 def main():
     model, opt = load_model(conf_path)
     conf = conf_path.split('/')[-1].replace('.yml', '')
