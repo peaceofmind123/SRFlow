@@ -34,6 +34,7 @@ def superResolve(model, opt, conf, lr_path, gt_path, sr_path, heat, measure, pad
     print(str_out)
     if sr_path is not None:
         imwrite(sr_path, sr)
+        imwrite("{}".format(sr_path),lr_reconstruct_rgb)
 
 def main():
     model, opt = load_model(conf_path)
@@ -43,11 +44,16 @@ def main():
     sr_dir = opt['dataroot_SR'] # the output directory
     measure = Measure(use_gpu=False)
     this_dir = os.path.dirname(os.path.realpath(__file__))
-    test_lr_path = os.path.join(this_dir,lr_dir,'000001.jpg')
-    test_gt_path = os.path.join(this_dir, gt_dir, '000001.jpg')
+    test_lr_path = os.path.join(this_dir,lr_dir,'000382.jpg')
+    test_gt_path = os.path.join(this_dir, gt_dir, '000382.jpg')
     output_path = os.path.join(this_dir,sr_dir, '000002.jpg')
-    superResolve(model,opt,conf,test_lr_path,test_gt_path,output_path,None,measure,2)
 
+
+    for i in range(10):
+        heat = (i+1.0) / 10
+        sr_path = os.path.join(this_dir, sr_dir, "{}.jpg".format(i+10))
+
+        superResolve(model, opt, conf, test_lr_path, test_gt_path, sr_path, heat, measure, 2)
 
 if __name__ == '__main__':
     main()
