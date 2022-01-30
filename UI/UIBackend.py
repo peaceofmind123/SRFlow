@@ -33,12 +33,19 @@ async def root():
 
 @app.post("/upload/lr")
 async def uploadLR(file: UploadFile):
-    # create a row initially devoid of path
+    # get file extension
+    ext = file.filename.split('.')[-1]
+
+    # compute id
+    num_uploads = session.query(Upload).count()
+    id = num_uploads # the id of the new upload will be the length of num_uploads
+
+    # create the upload object and add it into the table
     new_upload = Upload()
-    id = new_upload.id
-    out_file_path=os.path.join(os.getcwd(), 'static','uploads','lr', str(id))
-    new_upload.url = '/uploads/lr/'+str(id)
+    out_file_path=os.path.join(os.getcwd(), 'static','uploads','lr', str(id)+'.'+ext)
+    new_upload.url = '/static/uploads/lr/'+str(id)+'.'+ext
     session.add(new_upload)
+
     async with aiofiles.open(out_file_path, 'wb') as out_file:
         content = await file.read()  # async read
         await out_file.write(content)  # async write
