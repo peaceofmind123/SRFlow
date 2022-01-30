@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dborm import Upload, Base
 from fastapi.middleware.cors import CORSMiddleware
+from main import superResolveWithoutGT, superResolve
 
 # IMPORTANT: use this command to run uvicorn:
 # python -m uvicorn UIBackend:app --reload
@@ -61,3 +62,20 @@ async def uploadLR(file: UploadFile):
 @app.post("/upload/gt")
 async def uploadGT(file: UploadFile):
     return await uploadGeneral(file,'gt')
+
+# get multiple sr samples at the same temperature
+@app.get('/sr')
+async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
+
+    if not withGT:
+        # todo implement withGT part here
+        return
+    return {"success" : "true" }
+
+
+@app.get('/sr/heatChange')
+async def getSR(withGT: bool = False, numSamples: int = 1, heat: float = 0.7):
+    if not withGT:
+        # todo implement withGT part here
+        return
+    return {"success": "true"}

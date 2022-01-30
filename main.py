@@ -3,9 +3,28 @@ from Measure import Measure, psnr
 from collections import OrderedDict
 from imresize import imresize
 # Global config
-conf_path = './confs/SRFlow_CelebA_8X.yml'
+conf_path = 'confs/SRFlow_CelebA_8X.yml'
 test_lr_path = './data/validation/lr/001.png'
 test_gt_path = './data/validation/gt/001.png'
+
+def superResolveWithoutGT(model, opt, conf, lr_path, sr_path, heat, pad_factor=2):
+    lr = imread(lr_path)
+    scale = opt['scale']
+    h, w, c = lr.shape
+    lq_orig = lr.copy()
+    lr = impad(lr, bottom=int(np.ceil(h / pad_factor) * pad_factor - h),
+               right=int(np.ceil(w / pad_factor) * pad_factor - w))
+
+    lr_t = t(lr)  # torch tensor
+    if heat is None:
+        heat = opt['heat']
+
+    sr_t = model.get_sr(lq=lr_t, heat=heat)
+
+    sr = rgb(torch.clamp(sr_t, 0, 1))
+    sr = sr[:h * scale, :w * scale]
+    if sr_path is not None:
+        imwrite(sr_path, sr)
 
 
 def superResolve(model, opt, conf, lr_path, gt_path, sr_path, heat, measure, pad_factor=2):
@@ -34,7 +53,7 @@ def superResolve(model, opt, conf, lr_path, gt_path, sr_path, heat, measure, pad
     print(str_out)
     if sr_path is not None:
         imwrite(sr_path, sr)
-        imwrite("{}".format(sr_path),lr_reconstruct_rgb)
+        #imwrite("{}".format(sr_path),lr_reconstruct_rgb)
 
 def main():
     model, opt = load_model(conf_path)
