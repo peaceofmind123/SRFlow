@@ -42,7 +42,7 @@ async def uploadGeneral(file: UploadFile, type:str):
     id = num_uploads  # the id of the new upload will be the length of num_uploads
 
     # create the upload object and add it into the table
-    new_upload = Upload()
+    new_upload = Upload(file_name=file.filename)
     out_file_path = os.path.join(os.getcwd(), 'static', 'uploads', type, str(id) + '.' + ext)
     new_upload.url = '/static/uploads/'+type+'/' + str(id) + '.' + ext
     session.add(new_upload)
