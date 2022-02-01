@@ -98,6 +98,7 @@ async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
     lr_dir = opt['dataroot_LR']
     gt_dir = opt['dataroot_GT']
     sr_dir = opt['dataroot_SR']  # the output directory
+
     sr_urls = []
     for i in range(numSamples):
         if not withGT:
@@ -120,6 +121,8 @@ async def getSR(withGT: bool = False, numSamples: int = 1, heat: float = 0.7):
 
 
 def getPaths(num):
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+
     # get the lr, gt and sr paths of the last uploaded image
 
     # get last uploaded lr and gt upload objects
@@ -127,11 +130,11 @@ def getPaths(num):
     last_gt = session.query(Upload, LastUpload).filter(LastUpload.last_gt_id == Upload.id).first()
 
     # get the paths
-    last_lr_path = os.path.join(os.getcwd(),last_lr.Upload.url)
-    last_gt_path = os.path.join(os.getcwd(), last_gt.Upload.url)
+    last_lr_path = this_dir+last_lr.Upload.url
+    last_gt_path = this_dir+last_gt.Upload.url
     # get file name
     fname = last_lr.Upload.url.split('/')[-1]
-    sr_path = os.path.join(os.getcwd(),'static', 'sr')
+    sr_path = this_dir + '/static' + '/sr/'
     sr_path += str(num) +'-'+fname
     sr_url = '/static/sr/'+str(num)+ '-'+fname
     return last_lr_path, last_gt_path, sr_path, sr_url

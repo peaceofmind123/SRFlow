@@ -8,6 +8,7 @@ test_lr_path = './data/validation/lr/001.png'
 test_gt_path = './data/validation/gt/001.png'
 
 def superResolveWithoutGT(model, opt, conf, lr_path, sr_path, heat, pad_factor=2):
+
     lr = imread(lr_path)
     scale = opt['scale']
     h, w, c = lr.shape
