@@ -8,6 +8,11 @@ from dborm import Upload, Base
 from fastapi.middleware.cors import CORSMiddleware
 from main import superResolveWithoutGT, superResolve
 
+# configuration path
+from utils.main_utils import load_model
+
+conf_path = 'confs/SRFlow_CelebA_8X.yml'
+
 # IMPORTANT: use this command to run uvicorn:
 # python -m uvicorn UIBackend:app --reload
 # For some reason directly using uvicorn doesn't detect packages
@@ -66,9 +71,15 @@ async def uploadGT(file: UploadFile):
 # get multiple sr samples at the same temperature
 @app.get('/sr')
 async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
+    model, opt = load_model(conf_path)
+    conf = conf_path.split('/')[-1].replace('.yml', '')
+    lr_dir = opt['dataroot_LR']
+    gt_dir = opt['dataroot_GT']
+    sr_dir = opt['dataroot_SR']  # the output directory
 
     if not withGT:
-        # todo implement withGT part here
+        # todo implement withoutGT part here
+        superResolveWithoutGT(model,opt,conf,)
         return
     return {"success" : "true" }
 
@@ -79,3 +90,8 @@ async def getSR(withGT: bool = False, numSamples: int = 1, heat: float = 0.7):
         # todo implement withGT part here
         return
     return {"success": "true"}
+
+
+def getPaths():
+    # get the lr, gt and sr paths of the last uploaded image
+    pass

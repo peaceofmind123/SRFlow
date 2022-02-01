@@ -14,6 +14,8 @@ class Upload(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     url = Column(String(1000), nullable=True)
     file_name = Column(String(1000), nullable=True)
+    type = Column(String(1000), nullable=True)
+
 # Create an engine that stores data in the local directory's
 # sqlalchemy_example.db file.
 engine = create_engine('sqlite:///srflow.db')
