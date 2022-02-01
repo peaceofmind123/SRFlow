@@ -16,6 +16,12 @@ class Upload(Base):
     file_name = Column(String(1000), nullable=True)
     type = Column(String(1000), nullable=True)
 
+class LastUpload(Base):
+    __tablename__ = 'last_upload'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    last_gt_id = Column(Integer,ForeignKey('upload.id'))
+    last_lr_id = Column(Integer, ForeignKey('upload.id'))
+
 # Create an engine that stores data in the local directory's
 # sqlalchemy_example.db file.
 engine = create_engine('sqlite:///srflow.db')

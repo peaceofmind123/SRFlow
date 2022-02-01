@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from dborm import Upload, Base
 from fastapi.middleware.cors import CORSMiddleware
 from main import superResolveWithoutGT, superResolve
-
+from sqlalchemy.sql import func
 # configuration path
 from utils.main_utils import load_model
 
@@ -94,4 +94,8 @@ async def getSR(withGT: bool = False, numSamples: int = 1, heat: float = 0.7):
 
 def getPaths():
     # get the lr, gt and sr paths of the last uploaded image
-    pass
+    # aggregate the upload table by the type column
+
+    # count the number of gt and lr uploads
+    getUploadCountGT = session.query(func.count(Upload.id).filter(Upload.type == 'gt'))
+    getUploadCountLR = session.query(func.count(Upload.id).filter(Upload.type == 'lr'))
