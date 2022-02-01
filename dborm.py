@@ -19,8 +19,8 @@ class Upload(Base):
 class LastUpload(Base):
     __tablename__ = 'last_upload'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    last_gt_id = Column(Integer,ForeignKey('upload.id'))
-    last_lr_id = Column(Integer, ForeignKey('upload.id'))
+    last_gt_id = Column(Integer,ForeignKey('upload.id'), nullable=True)
+    last_lr_id = Column(Integer, ForeignKey('upload.id'), nullable=True)
 
 # Create an engine that stores data in the local directory's
 # sqlalchemy_example.db file.

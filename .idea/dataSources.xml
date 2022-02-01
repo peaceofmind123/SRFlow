@@ -7,5 +7,11 @@
       <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
       <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/UI/srflow.db</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="srflow [2]" uuid="1d1a4aa4-4a7b-402f-9740-4f28a32b34fd">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/srflow.db</jdbc-url>
+    </data-source>
   </component>
 </project>

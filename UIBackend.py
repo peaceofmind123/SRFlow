@@ -4,7 +4,7 @@ import aiofiles
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from dborm import Upload, Base
+from dborm import Upload, Base, LastUpload
 from fastapi.middleware.cors import CORSMiddleware
 from main import superResolveWithoutGT, superResolve
 from sqlalchemy.sql import func
@@ -51,6 +51,23 @@ async def uploadGeneral(file: UploadFile, type:str):
     new_upload = Upload(file_name=file.filename)
     out_file_path = os.path.join(os.getcwd(), 'static', 'uploads', type, str(id) + '.' + ext)
     new_upload.url = '/static/uploads/'+type+'/' + str(id) + '.' + ext
+
+    # get last upload object
+    last_upload = session.query(LastUpload).first()
+    if last_upload is None:
+        # means this is the first upload
+        if type == 'gt':
+            last_upload = LastUpload(last_gt_id=id)
+        else:
+            last_upload = LastUpload(last_lr_id=id)
+        session.add(last_upload)
+    else:
+        if type == 'gt':
+            #last_upload.last_gt_id = id
+            last_upload.update({LastUpload.last_gt_id:id})
+        else:
+            #last_upload.last_lr_id = id
+            last_upload.update({LastUpload.last_lr_id: id})
     session.add(new_upload)
 
     async with aiofiles.open(out_file_path, 'wb') as out_file:
