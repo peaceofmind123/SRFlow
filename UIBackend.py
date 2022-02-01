@@ -4,6 +4,8 @@ import aiofiles
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from Measure import Measure
 from dborm import Upload, Base, LastUpload
 from fastapi.middleware.cors import CORSMiddleware
 from main import superResolveWithoutGT, superResolve
@@ -31,6 +33,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
+measure = Measure(use_gpu=False)
+
 
 @app.get("/")
 async def root():
@@ -64,10 +68,11 @@ async def uploadGeneral(file: UploadFile, type:str):
     else:
         if type == 'gt':
             #last_upload.last_gt_id = id
-            last_upload.update({LastUpload.last_gt_id:id})
+            # since there will only ever be one lastupload object this will work
+            session.query(LastUpload).update({LastUpload.last_gt_id:id})
         else:
             #last_upload.last_lr_id = id
-            last_upload.update({LastUpload.last_lr_id: id})
+            session.query(LastUpload).update({LastUpload.last_lr_id: id})
     session.add(new_upload)
 
     async with aiofiles.open(out_file_path, 'wb') as out_file:
@@ -93,12 +98,17 @@ async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
     lr_dir = opt['dataroot_LR']
     gt_dir = opt['dataroot_GT']
     sr_dir = opt['dataroot_SR']  # the output directory
-
-    if not withGT:
-        # todo implement withoutGT part here
-        superResolveWithoutGT(model,opt,conf,)
-        return
-    return {"success" : "true" }
+    sr_urls = []
+    for i in range(numSamples):
+        if not withGT:
+            lr_path, _, sr_path,sr_url = getPaths(num=i)
+            superResolveWithoutGT(model,opt,conf,lr_path,sr_path,heat)
+            sr_urls.append(sr_url)
+        else:
+            lr_path, gt_path, sr_path, sr_url = getPaths(num=i)
+            superResolve(model, opt, conf, lr_path,gt_path,sr_path,heat,measure)
+            sr_urls.append(sr_url)
+    return {"urls" : sr_urls}
 
 
 @app.get('/sr/heatChange')
@@ -109,10 +119,19 @@ async def getSR(withGT: bool = False, numSamples: int = 1, heat: float = 0.7):
     return {"success": "true"}
 
 
-def getPaths():
+def getPaths(num):
     # get the lr, gt and sr paths of the last uploaded image
-    # aggregate the upload table by the type column
 
-    # count the number of gt and lr uploads
-    getUploadCountGT = session.query(func.count(Upload.id).filter(Upload.type == 'gt'))
-    getUploadCountLR = session.query(func.count(Upload.id).filter(Upload.type == 'lr'))
+    # get last uploaded lr and gt upload objects
+    last_lr = session.query(Upload,LastUpload).filter(LastUpload.last_lr_id == Upload.id).first()
+    last_gt = session.query(Upload, LastUpload).filter(LastUpload.last_gt_id == Upload.id).first()
+
+    # get the paths
+    last_lr_path = os.path.join(os.getcwd(),last_lr.Upload.url)
+    last_gt_path = os.path.join(os.getcwd(), last_gt.Upload.url)
+    # get file name
+    fname = last_lr.Upload.url.split('/')[-1]
+    sr_path = os.path.join(os.getcwd(),'static', 'sr')
+    sr_path += str(num) +'-'+fname
+    sr_url = '/static/sr/'+str(num)+ '-'+fname
+    return last_lr_path, last_gt_path, sr_path, sr_url
