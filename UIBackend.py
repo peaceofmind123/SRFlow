@@ -119,14 +119,34 @@ async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
 
 
 @app.get('/sr/heatChange')
-async def getSR(withGT: bool = False, numSamples: int = 1, start: float = 0.1, end:float = 1.0):
+async def getSRHeat(withGT: bool = False, numSamples: int = 1, start: float = 0.1, end:float = 1.0):
+    interval = (end - start + 1) / numSamples
+    sr_urls = []
+    model, opt = load_model(conf_path)
+    conf = conf_path.split('/')[-1].replace('.yml', '')
+    meas = None
     if not withGT:
-        # todo implement withGT part here
-        return
-    return {"success": "true"}
+        for i in range(numSamples):
+            lr_path, _, sr_path, sr_url = getPaths(num=i, withHeat=True)
+            superResolveWithoutGT(model, opt, conf, lr_path, sr_path, heat=start+i*interval)
+            sr_urls.append(sr_url)
+
+    else:
+        for i in range(numSamples):
+            lr_path, gt_path, sr_path, sr_url = getPaths(num=i)
+            meas = superResolve(model, opt, conf, lr_path, gt_path, sr_path, start+i*interval, measure)
+            sr_urls.append(sr_url)
+    if meas is not None:
+        return {"urls" : sr_urls, "measure": meas}
+    else:
+        return {"urls" : sr_urls}
 
 
-def getPaths(num):
+
+
+
+
+def getPaths(num, withHeat=False):
     this_dir = os.path.dirname(os.path.realpath(__file__))
 
     # get the lr, gt and sr paths of the last uploaded image
@@ -141,6 +161,11 @@ def getPaths(num):
     # get file name
     fname = last_lr.Upload.url.split('/')[-1]
     sr_path = this_dir + '/static' + '/sr/'
+    additional = ''
+    if withHeat:
+        additional = 'heat/'
+    sr_path += additional
     sr_path += str(num) +'-'+fname
-    sr_url = '/static/sr/'+str(num)+ '-'+fname
+
+    sr_url = '/static/sr/'+additional+str(num)+ '-'+fname
     return last_lr_path, last_gt_path, sr_path, sr_url
