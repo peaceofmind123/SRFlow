@@ -100,16 +100,22 @@ async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
     sr_dir = opt['dataroot_SR']  # the output directory
 
     sr_urls = []
+    meas = None
     for i in range(numSamples):
         if not withGT:
             lr_path, _, sr_path,sr_url = getPaths(num=i)
             superResolveWithoutGT(model,opt,conf,lr_path,sr_path,heat)
             sr_urls.append(sr_url)
+
         else:
             lr_path, gt_path, sr_path, sr_url = getPaths(num=i)
-            superResolve(model, opt, conf, lr_path,gt_path,sr_path,heat,measure)
+            meas = superResolve(model, opt, conf, lr_path,gt_path,sr_path,heat,measure)
             sr_urls.append(sr_url)
-    return {"urls" : sr_urls}
+
+    if meas is not None:
+        return {"urls" : sr_urls, "measure": meas}
+    else:
+        return {"urls" : sr_urls}
 
 
 @app.get('/sr/heatChange')

@@ -51,10 +51,11 @@ def superResolve(model, opt, conf, lr_path, gt_path, sr_path, heat, measure, pad
     lr_reconstruct_rgb = imresize(sr, 1 / opt['scale'])
     meas['LRC PSNR'] = psnr(lq_orig, lr_reconstruct_rgb)
     str_out = format_measurements(meas)
-    print(str_out)
+
     if sr_path is not None:
         imwrite(sr_path, sr)
         #imwrite("{}".format(sr_path),lr_reconstruct_rgb)
+    return meas
 
 def main():
     model, opt = load_model(conf_path)
