@@ -113,7 +113,7 @@ async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
 
 
 @app.get('/sr/heatChange')
-async def getSR(withGT: bool = False, numSamples: int = 1, heat: float = 0.7):
+async def getSR(withGT: bool = False, numSamples: int = 1, start: float = 0.1, end:float = 1.0):
     if not withGT:
         # todo implement withGT part here
         return
