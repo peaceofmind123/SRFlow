@@ -120,7 +120,7 @@ async def getSR(withGT:bool = False, numSamples:int=1, heat:float=0.7):
 
 @app.get('/sr/heatChange')
 async def getSRHeat(withGT: bool = False, numSamples: int = 1, start: float = 0.1, end:float = 1.0):
-    interval = (end - start + 1) / numSamples
+    interval = (end - start + 0.1) / numSamples
     sr_urls = []
     model, opt = load_model(conf_path)
     conf = conf_path.split('/')[-1].replace('.yml', '')
