@@ -12,7 +12,7 @@ def superResolveWithoutGT(model, opt, conf, lr_path, sr_path, heat, pad_factor=2
     lr = imread(lr_path)
     scale = opt['scale']
     h, w, c = lr.shape
-    lq_orig = lr.copy()
+
     lr = impad(lr, bottom=int(np.ceil(h / pad_factor) * pad_factor - h),
                right=int(np.ceil(w / pad_factor) * pad_factor - w))
 

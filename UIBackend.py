@@ -11,7 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from main import superResolveWithoutGT, superResolve
 from sqlalchemy.sql import func
 # configuration path
-from utils.main_utils import load_model
+from imresize import imresize
+from utils.main_utils import load_model, imread, imwrite
 
 conf_path = 'confs/SRFlow_CelebA_8X.yml'
 
@@ -78,6 +79,14 @@ async def uploadGeneral(file: UploadFile, type:str):
     async with aiofiles.open(out_file_path, 'wb') as out_file:
         content = await file.read()  # async read
         await out_file.write(content)  # async write
+
+    # reread the written file to convert it to the proper size
+    if type == 'lr':
+        img = resizeImage(imread(out_file_path), (20,20))
+    else:
+        img = resizeImage(imread(out_file_path), (160,160))
+
+    imwrite(out_file_path,img)
     session.commit()
 
     return {"id": id, "url": new_upload.url}
@@ -142,8 +151,15 @@ async def getSRHeat(withGT: bool = False, numSamples: int = 1, start: float = 0.
         return {"urls" : sr_urls}
 
 
-
-
+@app.get('/lr')
+def resizeImage(image, shape):
+    """
+    Resizes an image (numpy array) to the desired shape (2d without channels)
+    :param image: the input image
+    :param shape: the desired output shape
+    :return: image: the output image
+    """
+    return imresize(image, output_shape=(shape[0],shape[1], 3))
 
 
 def getPaths(num, withHeat=False):
